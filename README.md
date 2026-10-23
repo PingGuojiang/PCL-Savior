@@ -111,4 +111,4 @@ GitHub Pages 用于静态网站托管，Windows 程序编译由 **GitHub Actions
 
 本项目与 PCL、HMCL、PCL CE 及 Minecraft/Mojang 无隶属关系。启动器名称、图标及各依赖保留原项目权利；请尊重其许可证与使用条款。
 
-感谢 [EUI-NEO](https://github.com/sudoevolve/EUI-NEO)、[PCL](https://github.com/Meloong-Git/PCL)、[HMCL](https://github.com/HMCL-dev/HMCL)、[PCL CE](https://github.com/PCL-Community/PCL-CE) 以及 Python、pefile、dnfile、dncil、psutil、PyInstaller 等项目。第三方许可与资源来源见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)，发行包内附依赖许可证。
+感谢 [EUI-NEO](https://github.com/sudoevolve/EUI-NEO)、[PCL](https://github.com/Meloong-Git/PCL)、[HMCL](https://github.com/HMCL-dev/HMCL)、[PCL CE](https://github.com/PCL-Community/PCL-CE) 以及 Python、pefile、dnfile、dncil、psutil、PyInstaller 等项目。第三方许可与资源来源见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)，发行包内附依赖许可证
