@@ -27,6 +27,7 @@ PCL Savior 面向 **PCL、HMCL 与 PCL CE**，提供本地文件检测、下载�
 | --- | --- |
 | `PCL-Savior-1.0.0-beta.1-windows-x64-setup.exe` | 安装版，支持开始菜单、可选桌面快捷方式与卸载 |
 | `PCL-Savior-1.0.0-beta.1-windows-x64.zip` | 便携版，解压后运行 `PCL Savior.exe` |
+| `PCL-Savior-1.0.0-beta.1-windows-x64-single.exe` | 单文件免安装版，双击运行，关闭后清理临时资源 |
 | `SHA256SUMS.txt` | 校验下载文件的 SHA-256 |
 
 面向 Windows 10/11 x64，**无需安装 Python**便携版请保留 `assets`、`licenses` 和 `savior-core` 目录安装版默认安装到当前用户目录；卸载保留用户设置、下载文件和修补备份当前发行文件未配置数字签名
@@ -89,13 +90,25 @@ cd PCL-Savior
 
 代码分为 `src`（C++ 界面）、`core/savior`（修补与下载服务）、`scripts`（构建）和 `installer`（安装向导）运行时偏好保存于 `%APPDATA%\PCL Savior`，日志位于 `%LOCALAPPDATA%\PCL Savior\logs`关于页可填写 `PingGuojiang/PCL-Savior` 检查正式版更新，测试版请直接查看 Releases
 
+## 单 EXE 打包
+
+```powershell
+.\scripts\build-singlefile.ps1
+# 连同界面和后台重新构建
+.\scripts\build-singlefile.ps1 -Rebuild -CompilerRoot "D:\Tools\w64devkit"
+```
+
+单 EXE 内嵌界面、后台、Python 运行时、资源和依赖许可证，启动时校验并展开到临时目录，程序退出后清理，无需管理员权限、安装 Python 或联网下载运行时，首次启动会有解压等待
+
+安装版、ZIP 便携版和单 EXE 版均由在线工作流构建，单 EXE 同样未配置数字签名
+
 ## 在线编译（GitHub Actions）
 
 GitHub Pages 用于静态网站托管，Windows 程序编译由 **GitHub Actions** 执行本仓库保持私有，不部署公开 Pages 页面
 
 1. 登录有本仓库访问权限的 GitHub 账号，打开 [Actions → Build Windows](https://github.com/PingGuojiang/PCL-Savior/actions/workflows/build-windows.yml)
 2. 点击 **Run workflow**，选择 `main` 并运行
-3. 成功后在运行页面底部 **Artifacts** 下载 `PCL-Savior-1.0.0-beta.1-windows-x64`，内含安装包、便携 ZIP 和 SHA-256 清单
+3. 成功后在运行页面底部 **Artifacts** 下载 `PCL-Savior-1.0.0-beta.1-windows-x64`，内含安装包、便携 ZIP、单 EXE 和 SHA-256 清单
 
 `main` 的构建相关文件变更也会触发编译产物保留 14 天，遵循私有仓库访问权限；不会自动发布到 Releases 或 Pages工作流固定依赖与工具版本，运行于 Windows x64，校验打包后台启动私有仓库工作流受账号 Actions 配额约束
 

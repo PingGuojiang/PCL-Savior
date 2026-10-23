@@ -23,6 +23,8 @@
 !/scripts/collect_licenses.py
 !/scripts/core_entry.py
 !/scripts/prepare_release.py
+!/scripts/build-singlefile.ps1
+!/scripts/singlefile_entry.py
 **/__pycache__/
 *.py[cod]
 /assets/generate_icon.py

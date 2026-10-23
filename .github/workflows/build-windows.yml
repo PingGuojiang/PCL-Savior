@@ -62,6 +62,8 @@ jobs:
         run: ./scripts/build.ps1 -CompilerRoot (Join-Path $PWD '.tools/w64devkit')
       - name: Build installer
         run: ./scripts/build-installer.ps1
+      - name: Build single EXE
+        run: ./scripts/build-singlefile.ps1
       - name: Verify packaged worker and generate checksums
         run: |
           $ErrorActionPreference = 'Stop'
@@ -72,7 +74,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Packaged worker failed' }
           $event = ($reply | Select-Object -Last 1) | ConvertFrom-Json
           if ($event.type -ne 'result' -or $event.id -ne 'ci-build' -or $event.protocol -ne 1) { throw 'Packaged worker protocol mismatch' }
-          $files = @('dist/PCL-Savior-1.0.0-beta.1-windows-x64-setup.exe', 'dist/PCL-Savior-1.0.0-beta.1-windows-x64.zip')
+          $single = Join-Path $PWD 'dist/PCL-Savior-1.0.0-beta.1-windows-x64-single.exe'
+          $report = Join-Path $PWD 'build/singlefile-check.json'
+          $process = Start-Process $single -ArgumentList ('--self-check "' + $report + '"') -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -ne 0 -or !(Test-Path -LiteralPath $report)) { throw 'Single EXE self-check failed' }
+          if (!(Get-Content $report -Raw | ConvertFrom-Json).ok) { throw 'Single EXE report invalid' }
+          $files = @('dist/PCL-Savior-1.0.0-beta.1-windows-x64-setup.exe', 'dist/PCL-Savior-1.0.0-beta.1-windows-x64.zip', 'dist/PCL-Savior-1.0.0-beta.1-windows-x64-single.exe')
           $lines = foreach ($file in $files) {
             $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
             $hash + '  ' + [IO.Path]::GetFileName($file)
@@ -86,6 +93,7 @@ jobs:
           path: |
             dist/PCL-Savior-1.0.0-beta.1-windows-x64-setup.exe
             dist/PCL-Savior-1.0.0-beta.1-windows-x64.zip
+            dist/PCL-Savior-1.0.0-beta.1-windows-x64-single.exe
             dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 14
