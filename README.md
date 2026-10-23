@@ -9,6 +9,7 @@ Windows 启动器下载功能修补工具
 ![Version](https://img.shields.io/badge/version-1.0.0--beta.1-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011%20x64-0078D4)
 ![Status](https://img.shields.io/badge/status-Beta-orange)
+[![Build Windows](https://github.com/PingGuojiang/PCL-Savior/actions/workflows/build-windows.yml/badge.svg)](https://github.com/PingGuojiang/PCL-Savior/actions/workflows/build-windows.yml)
 
 [下载测试版](https://github.com/PingGuojiang/PCL-Savior/releases/tag/v1.0.0-beta.1) · [反馈问题](https://github.com/PingGuojiang/PCL-Savior/issues) · [构建方法](#从源码构建)
 
@@ -87,6 +88,16 @@ cd PCL-Savior
 ```
 
 代码分为 `src`（C++ 界面）、`core/savior`（修补与下载服务）、`scripts`（构建）和 `installer`（安装向导）。运行时偏好保存于 `%APPDATA%\PCL Savior`，日志位于 `%LOCALAPPDATA%\PCL Savior\logs`。关于页可填写 `PingGuojiang/PCL-Savior` 检查正式版更新，测试版请直接查看 Releases。
+
+## 在线编译（GitHub Actions）
+
+GitHub Pages 用于静态网站托管，Windows 程序编译由 **GitHub Actions** 执行。本仓库保持私有，不部署公开 Pages 页面。
+
+1. 登录有本仓库访问权限的 GitHub 账号，打开 [Actions → Build Windows](https://github.com/PingGuojiang/PCL-Savior/actions/workflows/build-windows.yml)。
+2. 点击 **Run workflow**，选择 `main` 并运行。
+3. 成功后在运行页面底部 **Artifacts** 下载 `PCL-Savior-1.0.0-beta.1-windows-x64`，内含安装包、便携 ZIP 和 SHA-256 清单。
+
+`main` 的构建相关文件变更也会触发编译。产物保留 14 天，遵循私有仓库访问权限；不会自动发布到 Releases 或 Pages。工作流固定依赖与工具版本，运行于 Windows x64，校验打包后台启动。私有仓库工作流受账号 Actions 配额约束。
 
 ## 问题反馈
 

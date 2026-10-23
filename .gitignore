@@ -10,6 +10,11 @@
 !/core/
 !/assets/
 !/installer/
+!/.github/
+/.github/*
+!/.github/workflows/
+/.github/workflows/*
+!/.github/workflows/build-windows.yml
 !/scripts/
 /scripts/*
 !/scripts/bootstrap.ps1

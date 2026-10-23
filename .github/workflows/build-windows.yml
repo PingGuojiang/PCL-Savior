@@ -1,0 +1,91 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'core/**'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'installer/**'
+      - 'requirements*.txt'
+      - 'CMakeLists.txt'
+      - '.github/workflows/build-windows.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Windows x64 portable and installer
+    runs-on: windows-2022
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13.7'
+          architecture: x64
+      - name: Set up pinned compiler and installer tools
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force .tools, build/tmp | Out-Null
+          $env:TMP = Join-Path $PWD 'build/tmp'
+          $env:TEMP = $env:TMP
+          $compiler = Join-Path $PWD '.tools/w64devkit.7z.exe'
+          Invoke-WebRequest 'https://github.com/skeeto/w64devkit/releases/download/v2.10.1/w64devkit-x64-2.10.1.7z.exe' -OutFile $compiler
+          if ((Get-FileHash $compiler -Algorithm SHA256).Hash -ne 'ADD1EDF984CE4D473CFEB7C52E0AB38DB73A855BBA6C7F564D5E16648EB2896A') { throw 'Compiler digest mismatch' }
+          & $compiler -y ('-o' + (Join-Path $PWD '.tools'))
+          if ($LASTEXITCODE -ne 0) { throw 'Compiler extraction failed' }
+          $setup = Join-Path $PWD '.tools/innosetup-6.7.3.exe'
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe' -OutFile $setup
+          if ((Get-FileHash $setup -Algorithm SHA256).Hash -ne '9C73C3BAE7ED48D44112A0F48E66742C00090BDB5BEF71D9D3C056C66E97B732') { throw 'Inno Setup digest mismatch' }
+          $toolDir = Join-Path $PWD '.tools/InnoSetup-6.7.3'
+          $process = Start-Process $setup -ArgumentList ('/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /PORTABLE=1 /NOICONS /TASKS="" /DIR="' + $toolDir + '"') -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -ne 0) { throw 'Inno Setup extraction failed' }
+      - name: Install pinned dependencies
+        run: ./scripts/bootstrap.ps1
+      - name: Build portable app
+        run: ./scripts/build.ps1 -CompilerRoot (Join-Path $PWD '.tools/w64devkit')
+      - name: Build installer
+        run: ./scripts/build-installer.ps1
+      - name: Verify packaged worker and generate checksums
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:TMP = Join-Path $PWD 'build/tmp'
+          $env:TEMP = $env:TMP
+          $request = '{"protocol":1,"id":"ci-build","command":"settings"}'
+          $reply = $request | & './dist/PCL-Savior/savior-core/savior-core.exe'
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged worker failed' }
+          $event = ($reply | Select-Object -Last 1) | ConvertFrom-Json
+          if ($event.type -ne 'result' -or $event.id -ne 'ci-build' -or $event.protocol -ne 1) { throw 'Packaged worker protocol mismatch' }
+          $files = @('dist/PCL-Savior-1.0.0-beta.1-windows-x64-setup.exe', 'dist/PCL-Savior-1.0.0-beta.1-windows-x64.zip')
+          $lines = foreach ($file in $files) {
+            $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
+            $hash + '  ' + [IO.Path]::GetFileName($file)
+          }
+          $lines | Set-Content -LiteralPath 'dist/SHA256SUMS.txt' -Encoding utf8
+          'Download the private build artifact below. Installation and portable packages include the runtime.' >> $env:GITHUB_STEP_SUMMARY
+      - name: Upload private build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PCL-Savior-1.0.0-beta.1-windows-x64
+          path: |
+            dist/PCL-Savior-1.0.0-beta.1-windows-x64-setup.exe
+            dist/PCL-Savior-1.0.0-beta.1-windows-x64.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14

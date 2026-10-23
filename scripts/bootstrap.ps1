@@ -11,7 +11,7 @@ $env:TEMP = $env:TMP
 New-Item -ItemType Directory -Force -Path $env:TMP | Out-Null
 & '.venv/Scripts/python.exe' -m pip install -r requirements-dev.txt
 if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed.' }
-if (!(Test-Path -LiteralPath 'third_party/EUI-NEO/include/eui_neo.h')) {
+if (!(Test-Path -LiteralPath 'third_party/EUI-NEO/.git')) {
     git clone https://github.com/sudoevolve/EUI-NEO.git third_party/EUI-NEO
     if ($LASTEXITCODE -ne 0) { throw 'EUI-NEO download failed.' }
 }
