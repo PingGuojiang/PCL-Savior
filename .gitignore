@@ -1,0 +1,27 @@
+# Only application sources, runtime assets and build inputs are public.
+/*
+!/.gitignore
+!/README.md
+!/THIRD_PARTY_NOTICES.md
+!/CMakeLists.txt
+!/requirements.txt
+!/requirements-dev.txt
+!/src/
+!/core/
+!/assets/
+!/installer/
+!/scripts/
+/scripts/*
+!/scripts/bootstrap.ps1
+!/scripts/build.ps1
+!/scripts/build-installer.ps1
+!/scripts/collect_licenses.py
+!/scripts/core_entry.py
+!/scripts/prepare_release.py
+**/__pycache__/
+*.py[cod]
+/assets/generate_icon.py
+.env
+.env.*
+*.pem
+*.key

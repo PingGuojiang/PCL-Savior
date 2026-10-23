@@ -1,0 +1,8 @@
+-r requirements.txt
+pytest==9.0.2
+pyinstaller==6.16.0
+pyinstaller-hooks-contrib==2026.9
+cmake==4.4.4
+ninja==1.13.2
+clang-format==21.1.8
+black==26.1.0
