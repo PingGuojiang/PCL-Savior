@@ -48,7 +48,7 @@ jobs:
           $compiler = Join-Path $PWD '.tools/w64devkit.7z.exe'
           Invoke-WebRequest 'https://github.com/skeeto/w64devkit/releases/download/v2.10.1/w64devkit-x64-2.10.1.7z.exe' -OutFile $compiler
           if ((Get-FileHash $compiler -Algorithm SHA256).Hash -ne 'ADD1EDF984CE4D473CFEB7C52E0AB38DB73A855BBA6C7F564D5E16648EB2896A') { throw 'Compiler digest mismatch' }
-          & $compiler -y ('-o' + (Join-Path $PWD '.tools'))
+          & 'C:/Program Files/7-Zip/7z.exe' x $compiler -y ('-o' + (Join-Path $PWD '.tools'))
           if ($LASTEXITCODE -ne 0) { throw 'Compiler extraction failed' }
           $setup = Join-Path $PWD '.tools/innosetup-6.7.3.exe'
           Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe' -OutFile $setup
